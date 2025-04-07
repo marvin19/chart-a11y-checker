@@ -19,27 +19,34 @@ export function checkModuleIncluded({ iframe }) {
 }
 
 // 2. Does the chart have a description?
-export function checkChartDescription({ iframe, config, chart }) {
+export function checkChartDescription({ iframe, config }) {
     const doc = iframe.contentDocument;
 
     const el = doc.querySelector(
         ".highcharts-description, .highcharts-linked-description"
     );
 
-    // Has a linked description
-    if (el !== null) {
+    const hasVisibleText = el && el.textContent.trim() !== "";
+
+    const desc =
+        config?.accessibility?.description ??
+        iframe.contentWindow?.renderedChart?.options?.accessibility
+            ?.description;
+
+    const hasInvisibleDesc = typeof desc === "string" && desc.trim().length > 0;
+
+    if (hasVisibleText) {
         return {
             type: "pass",
             message: "Chart has a visible description linked to the chart.",
         };
     }
 
-    // Has a hidden description
-    if (hasInvisibleDescription) {
+    if (hasInvisibleDesc) {
         return {
             type: "warning",
             message:
-                "Chart has an invisible description linked to the chart. This is not recommended.",
+                "Chart has an accessibility.description, but no visible description element.",
         };
     }
 
