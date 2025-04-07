@@ -73,16 +73,13 @@ document.getElementById("checkBtn").addEventListener("click", function () {
     );
 
     results.forEach((result) => {
-        const li = document.createElement("li");
-        li.className = result.type;
-        li.textContent = `${
-            result.type === "pass"
-                ? "✅"
-                : result.type === "warning"
-                ? "⚠️"
-                : "❌"
-        } ${result.label}: ${result.message}`;
-        resultsList.appendChild(li);
+        const item = renderResultItem({
+            label: result.label,
+            description: "",
+            status: result.type,
+            message: result.message,
+        });
+        resultsList.appendChild(item);
     });
 });
 
