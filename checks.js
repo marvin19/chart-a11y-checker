@@ -58,18 +58,75 @@ export function checkChartDescription({ iframe, config }) {
 }
 
 // 3. Does the chart have a title or a screen reader title?
-export function checkChartTitle({ iframe, config }) {
+export function checkChartTitle({ iframe }) {
     const doc = iframe.contentDocument;
+
     const el = doc.querySelector(".highcharts-title");
 
     const isVisible = el && el.offsetParent !== null;
+    const hasEmptyVisibleTitle = el && el.textContent.trim() === "";
 
+    const screenReaderSection = doc.querySelector(
+        ".highcharts-screen-reader-region-before-0"
+    );
+
+    const screenReaderHeading = screenReaderSection?.querySelector(
+        "h1, h2, h3, h4, h5, h6"
+    );
+
+    const screenReaderText = screenReaderHeading?.textContent.trim();
+
+    // TODO: If chart has no visible title, check if it has a screen reader title
+
+    // 3.1 Empty visible title
+    if (hasEmptyVisibleTitle) {
+        return {
+            type: "fail",
+            message: "Chart has a visible title, but it is empty.",
+        };
+    }
+
+    // 3.2 Default visible title
+    if (el && el.textContent.trim() === "Chart title") {
+        return {
+            type: "warning",
+            message:
+                "Chart has a visible title, but it is the default 'Chart title'. Consider customizing it.",
+        };
+    }
+
+    // 3.3 Valid visible title
     if (el && isVisible) {
         return {
             type: "pass",
             message: "Chart has a visible title linked to the chart.",
         };
     }
+
+    // 3.4 Screen reader default
+    if (screenReaderHeading && screenReaderText === "Chart title") {
+        return {
+            type: "warning",
+            message:
+                "Chart has a screen reader title, but it is the default 'Chart title'.",
+        };
+    }
+
+    // 🔸 3.5 Screen reader fallback
+    if (screenReaderHeading && screenReaderText !== "") {
+        return {
+            type: "warning",
+            message:
+                "Chart has a screen reader title, but no visible title element.",
+        };
+    }
+
+    // 3.6 No title at all
+    return {
+        type: "fail",
+        message:
+            "Chart is missing both a visible title and a screen reader title.",
+    };
 }
 
 // 4. Does the chart have a subtitle or a screen reader subtitle?
