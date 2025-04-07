@@ -1,3 +1,5 @@
+import { checkChartDescription } from "./checks.js";
+
 // Placeholder values, will be removed when checker is implemented
 document.addEventListener("DOMContentLoaded", function () {
     // Prefill inputs for testing
@@ -221,6 +223,13 @@ document.getElementById("renderBtn").addEventListener("click", function () {
 
     const doc = iframe.contentDocument || iframe.contentWindow.document;
 
+    window._lastRendered = {
+        iframe: iframe,
+        config: new Function(
+            "return " + document.getElementById("configInput").value
+        )(),
+    };
+
     const fullDoc = `
       <!DOCTYPE html>
       <html lang="en">
@@ -241,5 +250,33 @@ document.getElementById("renderBtn").addEventListener("click", function () {
 });
 
 document.getElementById("checkBtn").addEventListener("click", function () {
-    console.log("Check button clicked");
+    const resultsList = document.getElementById("resultsList");
+    resultsList.innerHTML = "";
+
+    if (!window._lastRendered) {
+        const li = document.createElement("li");
+        li.className = "fail";
+        li.textContent = "❌ No chart has been rendered yet.";
+        resultsList.appendChild(li);
+        return;
+    }
+
+    const { iframe, config } = window._lastRendered;
+
+    const result = checkChartDescription({ iframe, config });
+
+    if (!result || !result.type || !result.message) {
+        const li = document.createElement("li");
+        li.className = "fail";
+        li.textContent = "❌ Check failed to return a valid result.";
+        resultsList.appendChild(li);
+        return;
+    }
+
+    const li = document.createElement("li");
+    li.className = result.type;
+    li.textContent = `${
+        result.type === "pass" ? "✅" : result.type === "warning" ? "⚠️" : "❌"
+    } ${result.message}`;
+    resultsList.appendChild(li);
 });
