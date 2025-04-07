@@ -1,4 +1,22 @@
 // 1. Is module included?
+export function checkModuleIncluded({ iframe, config }) {
+    const doc = iframe.contentDocument;
+    const hasModule = doc.querySelector('script[src*="accessibility.js"]');
+
+    if (hasModule) {
+        return {
+            type: "pass",
+            message:
+                "Accessibility module is included. This will enable screen reader and keyboard navigation support.",
+        };
+    } else {
+        return {
+            type: "fail",
+            message:
+                "Accessibility module is not included. This will result in that a chart is interpreted as an image instead of a interactive chart.",
+        };
+    }
+}
 
 // 2. Does the chart have a description?
 export function checkChartDescription({ iframe, config }) {
@@ -52,6 +70,8 @@ export function checkChartTitle({ iframe, config }) {
 // 5. Does the chart have a xAxis title or a screen reader xAxis title?
 
 // 6. Does the chart have a yAxis title or a screen reader yAxis title?
+
+// 7. Does the chart have dataLabels or series-module included?
 
 // 7. Does all of the chart series have a name or a screen reader name?
 

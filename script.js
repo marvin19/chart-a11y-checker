@@ -1,8 +1,16 @@
 import { runCheck } from "./checkUtils.js";
-import { checkChartDescription, checkChartTitle } from "./checks.js";
+import {
+    checkChartDescription,
+    checkChartTitle,
+    checkModuleIncluded,
+} from "./checks.js";
 import { solarEmploymentConfig } from "./configs/lineChart.js";
 
 const allChecks = [
+    {
+        name: "Module Included",
+        run: checkModuleIncluded,
+    },
     {
         name: "Chart Description",
         run: checkChartDescription,
