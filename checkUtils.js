@@ -1,4 +1,4 @@
-export function runCheck({ name, run, iframe, config }) {
+export function runCheck({ name, run, iframe, config, chart }) {
     const defaultResult = {
         type: "fail",
         message: `Check "${name}" could not run.`,
@@ -13,7 +13,7 @@ export function runCheck({ name, run, iframe, config }) {
     }
 
     try {
-        const result = run({ iframe, config }) || {};
+        const result = run({ iframe, config, chart }) || {};
         return {
             label: name,
             type: result.type || "fail",

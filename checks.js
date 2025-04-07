@@ -1,5 +1,5 @@
 // 1. Is module included?
-export function checkModuleIncluded({ iframe, config }) {
+export function checkModuleIncluded({ iframe }) {
     const doc = iframe.contentDocument;
     const hasModule = doc.querySelector('script[src*="accessibility.js"]');
 
@@ -19,27 +19,27 @@ export function checkModuleIncluded({ iframe, config }) {
 }
 
 // 2. Does the chart have a description?
-export function checkChartDescription({ iframe, config }) {
+export function checkChartDescription({ iframe, config, chart }) {
     const doc = iframe.contentDocument;
+
     const el = doc.querySelector(
         ".highcharts-description, .highcharts-linked-description"
     );
-    const isVisible = el && el.offsetParent !== null;
-    const hasA11yDescription =
-        config?.accessibility?.description?.trim?.().length > 0;
 
-    if (el && isVisible) {
+    // Has a linked description
+    if (el !== null) {
         return {
             type: "pass",
             message: "Chart has a visible description linked to the chart.",
         };
     }
 
-    if (hasA11yDescription) {
+    // Has a hidden description
+    if (hasInvisibleDescription) {
         return {
             type: "warning",
             message:
-                "Chart has accessibility.description, but no visible description element.",
+                "Chart has an invisible description linked to the chart. This is not recommended.",
         };
     }
 
@@ -65,7 +65,7 @@ export function checkChartTitle({ iframe, config }) {
     }
 }
 
-// 4. Does the shcart have a subtitle or a screen reader subtitle?
+// 4. Does the chart have a subtitle or a screen reader subtitle?
 
 // 5. Does the chart have a xAxis title or a screen reader xAxis title?
 

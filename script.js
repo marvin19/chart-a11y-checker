@@ -6,6 +6,13 @@ import {
 } from "./checks.js";
 import { solarEmploymentConfig } from "./configs/lineChart.js";
 
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("cssInput").value = solarEmploymentConfig.css || "";
+    document.getElementById("jsInput").value = solarEmploymentConfig.html || "";
+    document.getElementById("configInput").value =
+        solarEmploymentConfig.config || "";
+});
+
 const allChecks = [
     {
         name: "Module Included",
@@ -22,11 +29,22 @@ const allChecks = [
 ];
 
 document.getElementById("renderBtn").addEventListener("click", function () {
-    const css = solarEmploymentConfig.css;
-    const userHtml = solarEmploymentConfig.html;
+    const css = document.getElementById("cssInput").value;
+    const userHtml = document.getElementById("jsInput").value;
+    const configCode = document.getElementById("configInput").value;
+
+    let userConfig;
+    try {
+        userConfig = new Function("return " + configCode)();
+    } catch (err) {
+        alert("Invalid chart config: " + err.message);
+        return;
+    }
+
+    const serializedConfig = JSON.stringify(userConfig, null, 2);
 
     const previewRoot = document.getElementById("preview-root");
-    previewRoot.innerHTML = ""; // Clear previous iframe
+    previewRoot.innerHTML = "";
 
     const iframe = document.createElement("iframe");
     iframe.style.width = "100%";
@@ -38,28 +56,52 @@ document.getElementById("renderBtn").addEventListener("click", function () {
 
     const doc = iframe.contentDocument || iframe.contentWindow.document;
 
+    // Store config for compliance checks
     window._lastRendered = {
-        iframe: iframe,
-        config: new Function("return " + solarEmploymentConfig.config)(),
+        iframe,
+        config: userConfig,
     };
 
-    const fullDoc = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <title>User Chart</title>
-        <style>${css}</style>
-      </head>
-      <body>
-        ${userHtml}
-      </body>
-      </html>
+    // Full HTML the user will see
+    const fullHtml = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>User Chart</title>
+            <style>${css}</style>
+        </head>
+        <body>
+            ${userHtml}
+        </body>
+        </html>
     `;
 
     doc.open();
-    doc.write(fullDoc);
+    doc.write(fullHtml);
     doc.close();
+
+    // Inject Highcharts call AFTER all user scripts are loaded
+    iframe.onload = function () {
+        const renderScript = doc.createElement("script");
+        renderScript.textContent = `
+            (function waitForHighcharts() {
+                if (typeof Highcharts === 'undefined' || !document.getElementById('container')) {
+                    return setTimeout(waitForHighcharts, 50);
+                }
+    
+                try {
+                    console.log('[iframe] Highcharts and container found, rendering...');
+                    window.renderedChartConfig = ${serializedConfig};
+                    window.renderedChart = Highcharts.chart('container', window.renderedChartConfig);
+                    console.log('[iframe] Chart rendered:', window.renderedChart);
+                } catch (e) {
+                    console.error('[iframe] Chart render failed:', e.message);
+                }
+            })();
+        `;
+        doc.body.appendChild(renderScript);
+    };
 });
 
 document.getElementById("checkBtn").addEventListener("click", function () {
@@ -75,9 +117,10 @@ document.getElementById("checkBtn").addEventListener("click", function () {
     }
 
     const { iframe, config } = window._lastRendered;
+    const chart = iframe.contentWindow?.renderedChart;
 
     const results = allChecks.map((check) =>
-        runCheck({ name: check.name, run: check.run, iframe, config })
+        runCheck({ name: check.name, run: check.run, iframe, config, chart })
     );
 
     results.forEach((result) => {
