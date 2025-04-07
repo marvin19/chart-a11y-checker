@@ -32,61 +32,33 @@ export function checkChartDescription({ iframe, config }) {
     };
 }
 
+// 3. Does the chart have a title or a screen reader title?
 export function checkChartTitle({ iframe, config }) {
     const doc = iframe.contentDocument;
-    const el = doc.querySelector(
-        ".highcharts-description, .highcharts-linked-description"
-    );
+    const el = doc.querySelector(".highcharts-title");
+
     const isVisible = el && el.offsetParent !== null;
-    const hasA11yDescription =
-        config?.accessibility?.description?.trim?.().length > 0;
 
     if (el && isVisible) {
         return {
             type: "pass",
-            message: "Chart has a visible description linked to the chart.",
+            message: "Chart has a visible title linked to the chart.",
         };
     }
-
-    if (hasA11yDescription) {
-        return {
-            type: "warning",
-            message:
-                "Chart has accessibility.description, but no visible description element.",
-        };
-    }
-
-    return {
-        type: "fail",
-        message:
-            "Chart is missing both a visible description and accessibility.description.",
-    };
 }
 
-// 3. Does the chart have a title?
-// export function checkChartTitle({ iframe, config }) {
-//     console.log("check chart title");
-//     // const result = {
-//     //     type: "",
-//     //     message: "",
-//     // };
+// 4. Does the shcart have a subtitle or a screen reader subtitle?
 
-//     // if (!iframe?.contentDocument) {
-//     //     result.type = "fail";
-//     //     result.message = "Could not access iframe document.";
-//     //     return result;
-//     // }
+// 5. Does the chart have a xAxis title or a screen reader xAxis title?
 
-//     // const doc = iframe.contentDocument;
-//     // const titleEl = doc.querySelector(".highcharts-title");
-//     // const isVisible = titleEl && titleEl.offsetParent !== null;
-//     // const hasA11yTitle = doc
-//     //     .querySelector("highcharts-screen-reader-region-before-0")
-//     //     .contains("h6");
-//     // console.log(hasA11yTitle);
+// 6. Does the chart have a yAxis title or a screen reader yAxis title?
 
-//     // return {
-//     //     type: result.type,
-//     //     message: result.message,
-//     // };
-// }
+// 7. Does all of the chart series have a name or a screen reader name?
+
+// 8. Does tooltip have a valueSuffix set?
+
+// 9. Is tooltip StickOnContact set?
+
+// 10. How is the series contrast compared to the background contrast?
+
+// 11. Are the series touching or overlapping and need color contrast between each other?
