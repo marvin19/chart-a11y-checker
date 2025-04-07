@@ -254,10 +254,14 @@ document.getElementById("checkBtn").addEventListener("click", function () {
     resultsList.innerHTML = "";
 
     if (!window._lastRendered) {
-        const li = document.createElement("li");
-        li.className = "fail";
-        li.textContent = "❌ No chart has been rendered yet.";
-        resultsList.appendChild(li);
+        resultsList.appendChild(
+            renderResultItem({
+                label: "Chart",
+                description: "Rendering check",
+                status: "fail",
+                message: "No chart has been rendered yet.",
+            })
+        );
         return;
     }
 
@@ -265,18 +269,43 @@ document.getElementById("checkBtn").addEventListener("click", function () {
 
     const result = checkChartDescription({ iframe, config });
 
-    if (!result || !result.type || !result.message) {
-        const li = document.createElement("li");
-        li.className = "fail";
-        li.textContent = "❌ Check failed to return a valid result.";
-        resultsList.appendChild(li);
-        return;
-    }
-
-    const li = document.createElement("li");
-    li.className = result.type;
-    li.textContent = `${
-        result.type === "pass" ? "✅" : result.type === "warning" ? "⚠️" : "❌"
-    } ${result.message}`;
-    resultsList.appendChild(li);
+    resultsList.appendChild(
+        renderResultItem({
+            label: "Chart Description",
+            description:
+                "Chart must have a visible description or an accessibility.description set.",
+            status: result.type,
+            message: result.message,
+        })
+    );
 });
+
+function renderResultItem({ label, description, status, message }) {
+    const container = document.createElement("li");
+    container.className = `result-item ${status}`;
+
+    const title = document.createElement("strong");
+    title.textContent = label;
+
+    const desc = document.createElement("p");
+    desc.textContent = description;
+
+    const statusTag = document.createElement("span");
+    statusTag.className = `status-label ${status}`;
+    statusTag.textContent =
+        status === "pass"
+            ? "✅ Pass"
+            : status === "warning"
+            ? "⚠️ Warning"
+            : "❌ Fail";
+
+    const note = document.createElement("small");
+    note.textContent = message;
+
+    container.appendChild(title);
+    container.appendChild(statusTag);
+    container.appendChild(desc);
+    container.appendChild(note);
+
+    return container;
+}

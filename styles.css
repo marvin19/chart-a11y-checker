@@ -3,66 +3,66 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-  }
-  
-  /* ===== General ===== */
-  body {
+}
+
+/* ===== General ===== */
+body {
     background-color: #f4f6f9;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     color: #333;
     padding: 2rem;
     line-height: 1.5;
-  }
-  
-  /* ===== App Container ===== */
-  .app-container {
+}
+
+/* ===== App Container ===== */
+.app-container {
     max-width: 1200px;
     margin: 0 auto;
-  }
-  
-  /* ===== Layout Rows ===== */
-  .row {
+}
+
+/* ===== Layout Rows ===== */
+.row {
     display: flex;
     flex-wrap: wrap;
     margin-bottom: 2rem;
     gap: 1.5rem;
-  }
-  
-  .full {
+}
+
+.full {
     width: 100%;
-  }
-  
-  .two-column {
+}
+
+.two-column {
     display: flex;
     align-items: stretch; /* Match column height */
-  }
-  
-  /* ===== Column Widths ===== */
-  .col {
+}
+
+/* ===== Column Widths ===== */
+.col {
     display: flex;
     flex-direction: column;
-  }
-  
-  .col-3 {
+}
+
+.col-3 {
     flex: 0 0 25%;
-  }
-  
-  .col-9 {
+}
+
+.col-9 {
     flex: 0 0 70%;
     display: flex;
     flex-direction: column;
-  }
-  
-  /* ===== Box Styling ===== */
-  .box {
+}
+
+/* ===== Box Styling ===== */
+.box {
     background-color: #ffffff;
     border-radius: 10px;
     padding: 1rem 1.25rem;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  }
-  
-  /* ===== Text Areas ===== */
-  textarea {
+}
+
+/* ===== Text Areas ===== */
+textarea {
     margin-bottom: 1rem;
     padding: 0.75rem;
     font-family: monospace;
@@ -71,16 +71,16 @@
     resize: vertical;
     width: 100%;
     min-height: 100px;
-  }
-  
-  /* ===== Buttons ===== */
-  .button-group {
+}
+
+/* ===== Buttons ===== */
+.button-group {
     display: flex;
     gap: 1rem;
     margin-top: 0.5rem;
-  }
-  
-  button {
+}
+
+button {
     padding: 0.6rem 1rem;
     font-size: 1rem;
     background-color: #0077ff;
@@ -89,57 +89,90 @@
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.2s;
-  }
-  
-  button:hover {
+}
+
+button:hover {
     background-color: #005fcc;
-  }
-  
-  /* ===== Chart Preview ===== */
-  #chartPreview {
+}
+
+/* ===== Chart Preview ===== */
+#chartPreview {
     flex: 1;
     display: flex;
     flex-direction: column;
-  }
-  
-  #preview-root {
+}
+
+#preview-root {
     height: 100%;
     min-height: 400px;
     width: 100%;
     border: 1px solid #e1e4e8;
     border-radius: 6px;
-  }
-  
-  /* ===== Results Styling ===== */
-  #resultsBox {
+}
+
+/* ===== Results Styling ===== */
+#resultsBox {
     padding-top: 1rem;
-  }
-  
-  #resultsList {
+}
+
+#resultsList {
     list-style: none;
     margin-top: 1rem;
-  }
-  
-  #resultsList li {
+}
+
+#resultsList li {
     margin-bottom: 0.75rem;
     font-weight: 500;
-  }
-  
-  /* ===== Status Colors ===== */
-  .pass {
-    color: #28a745; /* green */
-  }
-  
-  .warning {
-    color: #ffc107; /* amber */
-  }
-  
-  .fail {
-    color: #dc3545; /* red */
-  }
-  
-  /* ===== Headings ===== */
-  h1, h2 {
+}
+
+.result-item {
+    padding: 1rem;
     margin-bottom: 1rem;
-  }
-  
+    border-radius: 8px;
+    background: #f9f9f9;
+    border-left: 6px solid transparent;
+}
+
+.result-item.pass {
+    border-color: #28a745;
+}
+
+.result-item.warning {
+    border-color: #ffc107;
+}
+
+.result-item.fail {
+    border-color: #dc3545;
+}
+
+.status-label {
+    display: inline-block;
+    margin-left: 0.5rem;
+    font-weight: 600;
+}
+
+.result-item small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+/* ===== Status Colors ===== */
+.pass {
+    color: #28a745; /* green */
+}
+
+.warning {
+    color: #ffc107; /* amber */
+}
+
+.fail {
+    color: #dc3545; /* red */
+}
+
+/* ===== Headings ===== */
+h1,
+h2 {
+    margin-bottom: 1rem;
+}
