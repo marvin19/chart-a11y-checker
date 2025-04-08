@@ -1,10 +1,3 @@
 export function createColorBox(color) {
-    const box = document.createElement("div");
-    box.style.width = "16px";
-    box.style.height = "16px";
-    box.style.backgroundColor = color;
-    box.style.borderRadius = "3px";
-    box.style.display = "inline-block";
-    box.style.marginRight = "5px";
-    return box;
+    return `<div style="width: 20px; height: 20px; background-color: ${color}; display: inline-block; margin-right: 5px;"></div>`;
 }

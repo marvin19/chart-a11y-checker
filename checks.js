@@ -1,4 +1,5 @@
 import { calculateContrastRatio, rgbToHex } from "./utils/colorCalc.js";
+import { createColorBox } from "./components/colorBox.js";
 
 // 1. Is module included?
 export function checkModuleIncluded({ iframe }) {
@@ -175,13 +176,10 @@ export function checkChartColors({ iframe }) {
 
     const titleHex = titleColor ? rgbToHex(titleColor) : undefined;
 
-    console.log("beforeContrastRatio");
     const titleContrastRatio = calculateContrastRatio(
         titleHex,
         backgroundColor
     );
-
-    console.log("titleContrastRatio", titleContrastRatio);
 
     // Check if the contrast ratio is calculated
     if (titleContrastRatio === undefined) {
@@ -191,8 +189,6 @@ export function checkChartColors({ iframe }) {
             message: "Unable to calculate contrast ratio for title color.",
         };
     }
-
-    // Contrast constants
 
     // Check if the title color has enough contrast against the background
     // TODO: Should I check for font size in addition to this?
@@ -206,20 +202,61 @@ export function checkChartColors({ iframe }) {
         };
     }
 
-    // 10.1 Check if the series colors are readable against the background
-    // const contrastResults = series.map((s) => {
-    //     const contrastRatio = getContrastRatio(s.color, backgroundColor);
-    //     return {
-    //         name: s.name,
-    //         contrastRatio,
-    //         isReadable: contrastRatio >= 4.5,
-    //     };
-    // });
-
     return {
         type: "pass",
         message: "All series have a good contrast against the background.",
     };
+}
+
+export function checkChartSeriesColors({ iframe }) {
+    const doc = iframe.contentDocument;
+    const chart = iframe.contentWindow?.renderedChart;
+
+    // Getting the series colors
+    const series = chart.series.map((s) => ({
+        color: s.color,
+        name: s.name,
+    }));
+
+    const backgroundColor = doc
+        .querySelector(".highcharts-background")
+        ?.getAttribute("fill");
+
+    // Check if the series colors are readable against the background
+    const contrastResults = series.map((s) => {
+        const contrastRatio = calculateContrastRatio(s.color, backgroundColor);
+        return {
+            name: s.name,
+            contrastRatio,
+            isReadable: contrastRatio >= 4.5, // WCAG AA contrast ratio threshold
+        };
+    });
+
+    // Check if all series have sufficient contrast
+    const allReadable = contrastResults.every((result) => result.isReadable);
+
+    if (allReadable) {
+        return {
+            type: "pass",
+            message:
+                "All series colors have sufficient contrast against the background.",
+        };
+    } else {
+        const failingSeries = contrastResults
+            .filter((result) => !result.isReadable)
+            .map(
+                (result) =>
+                    `${
+                        result.name
+                    } (contrast ratio: ${result.contrastRatio.toFixed(2)})`
+            )
+            .join(", ");
+
+        return {
+            type: "fail",
+            message: `The following series colors do not have sufficient contrast against the background: ${failingSeries}.`,
+        };
+    }
 }
 
 // 11. Are the series touching or overlapping and need color contrast between each other?

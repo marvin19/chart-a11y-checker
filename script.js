@@ -4,6 +4,7 @@ import {
     checkChartTitle,
     checkModuleIncluded,
     checkChartColors,
+    checkChartSeriesColors,
 } from "./checks.js";
 import { solarEmploymentConfig } from "./configs/lineChart.js";
 import { twoLineSeries } from "./configs/lineChartWithTwoSeries.js";
@@ -32,6 +33,10 @@ const allChecks = [
     {
         name: "Chart Colors",
         run: checkChartColors,
+    },
+    {
+        name: "Series Colors",
+        run: checkChartSeriesColors,
     },
 ];
 
