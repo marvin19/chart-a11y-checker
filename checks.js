@@ -61,63 +61,68 @@ export function checkChartDescription({ iframe, config }) {
 export function checkChartTitle({ iframe }) {
     const doc = iframe.contentDocument;
 
-    const el = doc.querySelector(".highcharts-title");
-
-    const isVisible = el && el.offsetParent !== null;
-    const hasEmptyVisibleTitle = el && el.textContent.trim() === "";
-
-    const screenReaderSection = doc.querySelector(
-        ".highcharts-screen-reader-region-before-0"
-    );
-
-    const screenReaderHeading = screenReaderSection?.querySelector(
+    // Getting the title elements
+    const visibleTitleEl = doc.querySelector(".highcharts-title");
+    const screenReaderRegion = doc.getElementById(
+        "highcharts-screen-reader-region-before-0"
+    ).children[0];
+    const screenReaderHeading = screenReaderRegion?.querySelector(
         "h1, h2, h3, h4, h5, h6"
     );
 
-    const screenReaderText = screenReaderHeading?.textContent.trim();
+    // Getting the title text
+    const screenReaderText = screenReaderHeading?.textContent?.trim() ?? "";
+    const visibleTitleText = visibleTitleEl?.textContent?.trim();
 
-    // TODO: If chart has no visible title, check if it has a screen reader title
+    // Assertions
+    const isVisible = visibleTitleEl && visibleTitleEl.offsetParent !== null;
+    const hasEmptyVisibleTitle =
+        visibleTitleEl && visibleTitleEl.textContent.trim() === "";
+    const hasDefaultVisibleTitle =
+        visibleTitleEl && visibleTitleEl.textContent.trim() === "Chart title";
+    const hasDefaultScreenReaderTitle = ["Chart", "Chart title"].includes(
+        screenReaderTitle
+    );
+    const areTitlesAligned = screenReaderText === visibleTitleText;
 
-    // 3.1 Empty visible title
-    if (hasEmptyVisibleTitle) {
+    // 3.1 Empty visible title and default screen reader title
+    if (hasEmptyVisibleTitle && hasDefaultScreenReaderTitle) {
         return {
             type: "fail",
-            message: "Chart has a visible title, but it is empty.",
+            message:
+                "Chart has a visible title set to an empty string. Screen reader heading has default heading 'Chart'. Please provide a title.",
         };
     }
-
-    // 3.2 Default visible title
-    if (el && el.textContent.trim() === "Chart title") {
+    // 3.2 Default visible title && default screen reader title
+    if (hasDefaultVisibleTitle && hasDefaultScreenReaderTitle) {
         return {
             type: "warning",
             message:
-                "Chart has a visible title, but it is the default 'Chart title'. Consider customizing it.",
+                "Chart has a visible title, but it is the default 'Chart title'. Consider giving the chart a better title.",
         };
     }
 
-    // 3.3 Valid visible title
-    if (el && isVisible) {
+    // 3.3 Valid visible title && default screen reader title
+    if (
+        visibleTitleEl &&
+        isVisible &&
+        !hasDefaultVisibleTitle &&
+        hasDefaultScreenReaderTitle
+    ) {
+        return {
+            type: "warning",
+            message:
+                "Chart has a visible title, but the screen reader title is the default 'Chart'. Consider check why the titles misalign.",
+        };
+    }
+
+    // 3.4 Visible title matching screen reader title
+    if (visibleTitleEl && isVisible && areTitlesAligned) {
+        // 3.3 Valid visible title
         return {
             type: "pass",
-            message: "Chart has a visible title linked to the chart.",
-        };
-    }
-
-    // 3.4 Screen reader default
-    if (screenReaderHeading && screenReaderText === "Chart title") {
-        return {
-            type: "warning",
             message:
-                "Chart has a screen reader title, but it is the default 'Chart title'.",
-        };
-    }
-
-    // 🔸 3.5 Screen reader fallback
-    if (screenReaderHeading && screenReaderText !== "") {
-        return {
-            type: "warning",
-            message:
-                "Chart has a screen reader title, but no visible title element.",
+                "Chart has a visible title that is also matching the screen reader title.",
         };
     }
 
