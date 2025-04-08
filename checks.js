@@ -81,7 +81,7 @@ export function checkChartTitle({ iframe }) {
     const hasDefaultVisibleTitle =
         visibleTitleEl && visibleTitleEl.textContent.trim() === "Chart title";
     const hasDefaultScreenReaderTitle = ["Chart", "Chart title"].includes(
-        screenReaderTitle
+        screenReaderText
     );
     const areTitlesAligned = screenReaderText === visibleTitleText;
 
