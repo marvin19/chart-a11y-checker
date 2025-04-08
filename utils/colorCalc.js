@@ -3,7 +3,6 @@
 // Note: Ensure any updates to the original repository are reflected here if needed.
 
 export const calculateContrastRatio = (color1, color2) => {
-    console.log("ha");
     const luminance1 = getLuminance(color1);
     const luminance2 = getLuminance(color2);
 
@@ -19,11 +18,8 @@ export const calculateContrastRatio = (color1, color2) => {
 
 export const getLuminance = (color) => {
     // Transforming hex to Rgb
-
-    console.log(color);
     const rgb = hexToRgb(color);
 
-    console.log("luminance", rgb);
     // calculating relative luminance from rgb values
     const a = [rgb.r, rgb.g, rgb.b].map((v) => {
         // Dividing the value by 255 to normalize it to a range of 0 to 1

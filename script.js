@@ -5,11 +5,14 @@ import {
     checkModuleIncluded,
     checkChartColors,
     checkChartSeriesColors,
+    checkChartSeriesOverlapping,
 } from "./checks.js";
 import { solarEmploymentConfig } from "./configs/lineChart.js";
 import { twoLineSeries } from "./configs/lineChartWithTwoSeries.js";
+import { twoLineSeriesNoOverlap } from "./configs/lineChartWithTwoSeriesNoOverlap.js";
+import { columnChartCloseColumns } from "./configs/columnChartCloseColumns.js";
 
-const testChart = twoLineSeries;
+const testChart = columnChartCloseColumns;
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("cssInput").value = testChart.css || "";
@@ -37,6 +40,10 @@ const allChecks = [
     {
         name: "Series Colors",
         run: checkChartSeriesColors,
+    },
+    {
+        name: "Chart Series Overlapping",
+        run: checkChartSeriesOverlapping,
     },
 ];
 

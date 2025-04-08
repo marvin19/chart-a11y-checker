@@ -1,5 +1,6 @@
 import { calculateContrastRatio, rgbToHex } from "./utils/colorCalc.js";
 import { createColorBox } from "./components/colorBox.js";
+import { elementsOverlap } from "./utils/overlap.js";
 
 // 1. Is module included?
 export function checkModuleIncluded({ iframe }) {
@@ -258,6 +259,92 @@ export function checkChartSeriesColors({ iframe }) {
         };
     }
 }
+
+export function checkChartSeriesOverlapping({ iframe }) {
+    const chart = iframe.contentWindow?.renderedChart;
+    if (!chart || !chart.series) {
+        return {
+            type: "fail",
+            message: "Chart or series data not available.",
+        };
+    }
+
+    const overlappingPairs = [];
+
+    for (let i = 0; i < chart.series.length; i++) {
+        for (let j = i + 1; j < chart.series.length; j++) {
+            const seriesA = chart.series[i];
+            const seriesB = chart.series[j];
+
+            // Skip hidden or non-rendered series
+            if (!seriesA.visible || !seriesB.visible) continue;
+            if (!seriesA.points || !seriesB.points) continue;
+
+            if (pointsAreClose(seriesA.points, seriesB.points)) {
+                const contrast = calculateContrastRatio(
+                    seriesA.color,
+                    seriesB.color
+                );
+
+                if (contrast < 3) {
+                    overlappingPairs.push({
+                        nameA: seriesA.name,
+                        nameB: seriesB.name,
+                        contrast,
+                        colors: [seriesA.color, seriesB.color],
+                    });
+                }
+            }
+        }
+    }
+
+    if (overlappingPairs.length === 0) {
+        return {
+            type: "pass",
+            message:
+                "Line series do not overlap visually or have sufficient color contrast.",
+        };
+    } else {
+        const details = overlappingPairs
+            .map(
+                (p) =>
+                    `${p.nameA} vs ${p.nameB} (contrast: ${p.contrast.toFixed(
+                        2
+                    )})`
+            )
+            .join("; ");
+        return {
+            type: "warning",
+            message: `Overlapping series with low contrast: ${details}`,
+        };
+    }
+}
+
+// Helper function to determine if any points between two series are "too close"
+function pointsAreClose(pointsA, pointsB, threshold = 8) {
+    for (const p1 of pointsA) {
+        const x1 = p1.plotX + p1.series.chart.plotLeft;
+        const y1 = p1.plotY + p1.series.chart.plotTop;
+
+        for (const p2 of pointsB) {
+            const x2 = p2.plotX + p2.series.chart.plotLeft;
+            const y2 = p2.plotY + p2.series.chart.plotTop;
+
+            const dx = x1 - x2;
+            const dy = y1 - y2;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < threshold) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// Single series
+// Two series not overlapping
+// Pie chart where edges are close
 
 // 11. Are the series touching or overlapping and need color contrast between each other?
 
