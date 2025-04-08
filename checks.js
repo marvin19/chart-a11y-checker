@@ -1,3 +1,5 @@
+import { calculateContrastRatio, rgbToHex } from "./utils/colorCalc.js";
+
 // 1. Is module included?
 export function checkModuleIncluded({ iframe }) {
     const doc = iframe.contentDocument;
@@ -149,5 +151,95 @@ export function checkChartTitle({ iframe }) {
 // 9. Is tooltip StickOnContact set?
 
 // 10. How is the series contrast compared to the background contrast?
+export function checkChartColors({ iframe }) {
+    const doc = iframe.contentDocument;
+    const chart = iframe.contentWindow?.renderedChart;
+
+    // Getting the series colors
+    const series = chart.series.map((s) => ({
+        color: s.color,
+        name: s.name,
+    }));
+
+    // Getting all the colors of the elements to be contrast checked
+    const backgroundColor = doc
+        .querySelector(".highcharts-background")
+        ?.getAttribute("fill");
+    const seriesColors = series.map((s) => s.color);
+
+    const titleColor = doc
+        .querySelector(".highcharts-title")
+        ?.getAttribute("style")
+        ?.match(/fill:\s*([^;]+)/)?.[1]
+        ?.trim();
+
+    const titleHex = titleColor ? rgbToHex(titleColor) : undefined;
+
+    console.log("beforeContrastRatio");
+    const titleContrastRatio = calculateContrastRatio(
+        titleHex,
+        backgroundColor
+    );
+
+    console.log("titleContrastRatio", titleContrastRatio);
+
+    // Check if the contrast ratio is calculated
+    if (titleContrastRatio === undefined) {
+        //TODO: Handle cases with a different color where there might be a internal error
+        return {
+            type: "fail",
+            message: "Unable to calculate contrast ratio for title color.",
+        };
+    }
+
+    // Contrast constants
+
+    // Check if the title color has enough contrast against the background
+    // TODO: Should I check for font size in addition to this?
+    if (titleContrastRatio >= 3) {
+        return {
+            type: "pass",
+            message:
+                "Title color has a contrast ratio of " +
+                titleContrastRatio +
+                " against background color.",
+        };
+    }
+
+    // 10.1 Check if the series colors are readable against the background
+    // const contrastResults = series.map((s) => {
+    //     const contrastRatio = getContrastRatio(s.color, backgroundColor);
+    //     return {
+    //         name: s.name,
+    //         contrastRatio,
+    //         isReadable: contrastRatio >= 4.5,
+    //     };
+    // });
+
+    return {
+        type: "pass",
+        message: "All series have a good contrast against the background.",
+    };
+}
 
 // 11. Are the series touching or overlapping and need color contrast between each other?
+
+// Other text color use cases:
+// const subtitleColor = doc
+//     .querySelector(".highcharts-subtitle")
+//     ?.getAttribute("fill");
+// const tooltipColor = doc
+//     .querySelector(".highcharts-tooltip")
+//     ?.getAttribute("fill");
+// const legendColor = doc
+//     .querySelector(".highcharts-legend-item")
+//     ?.getAttribute("fill");
+// const axisColor = doc
+//     .querySelector(".highcharts-axis-title")
+//     ?.getAttribute("fill");
+// const axisLabelColor = doc
+//     .querySelector(".highcharts-axis-labels")
+//     ?.getAttribute("fill");
+// const dataLabelColor = doc
+//     .querySelector(".highcharts-data-labels")
+//     ?.getAttribute("fill");

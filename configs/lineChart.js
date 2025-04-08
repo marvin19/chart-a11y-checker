@@ -61,6 +61,9 @@ export const solarEmploymentConfig = {
         text: 'U.S Solar Employment Growth',
         align: 'left'
       },
+      chart: {
+        backgroundColor: 'hotpink',
+        },
       subtitle: {
         text: 'By Job Category. Source: <a href="https://irecusa.org/programs/solar-jobs-census/" target="_blank">IREC</a>.',
         align: 'left'

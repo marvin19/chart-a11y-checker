@@ -1,16 +1,19 @@
-import { runCheck } from "./checkUtils.js";
+import { runCheck } from "./utils/checkUtils.js";
 import {
     checkChartDescription,
     checkChartTitle,
     checkModuleIncluded,
+    checkChartColors,
 } from "./checks.js";
 import { solarEmploymentConfig } from "./configs/lineChart.js";
+import { twoLineSeries } from "./configs/lineChartWithTwoSeries.js";
+
+const testChart = twoLineSeries;
 
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("cssInput").value = solarEmploymentConfig.css || "";
-    document.getElementById("jsInput").value = solarEmploymentConfig.html || "";
-    document.getElementById("configInput").value =
-        solarEmploymentConfig.config || "";
+    document.getElementById("cssInput").value = testChart.css || "";
+    document.getElementById("jsInput").value = testChart.html || "";
+    document.getElementById("configInput").value = testChart.config || "";
 });
 
 const allChecks = [
@@ -25,6 +28,10 @@ const allChecks = [
     {
         name: "Chart Title",
         run: checkChartTitle,
+    },
+    {
+        name: "Chart Colors",
+        run: checkChartColors,
     },
 ];
 
